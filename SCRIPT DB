@@ -1,0 +1,157 @@
+create database oficina_db
+GO
+
+use oficina_db
+go
+
+if object_id ('gama_producto') is not null
+	drop table gama_producto;
+if object_id ('producto') is not null
+	drop table producto;
+if object_id ('cliente') is not null
+	drop table cliente;
+if object_id ('pago') is not null
+	drop table pago;
+if object_id ('pedido') is not null
+	drop table pedido;
+if object_id ('detalle_pedido') is not null
+	drop table detalle_pedido;
+if object_id ('oficina') is not null
+	drop table oficina;
+if object_id ('empleado') is not null
+	drop table empleado;
+
+
+
+CREATE TABLE gama_producto (
+    gama VARCHAR(50) PRIMARY KEY,
+    descripcion_texto TEXT,
+    descripcion_html TEXT,
+    imagen VARCHAR(256)
+);
+
+CREATE TABLE producto (
+    codigo_producto VARCHAR(15) PRIMARY KEY,
+    nombre VARCHAR(70),
+    gama VARCHAR(50),
+    dimensiones VARCHAR(25),
+    proveedor VARCHAR(50),
+    descripcion TEXT,
+    cantidad_en_stock SMALLINT,
+    precio_venta DECIMAL(15,2),
+    precio_proveedor DECIMAL(15,2),
+    FOREIGN KEY (gama) REFERENCES gama_producto(gama)
+);
+
+CREATE TABLE cliente (
+    codigo_cliente INT PRIMARY KEY,
+    nombre_cliente VARCHAR(50),
+    nombre_contacto VARCHAR(30),
+    apellido_contacto VARCHAR(30),
+    telefono VARCHAR(15),
+    fax VARCHAR(15),
+    linea_direccion1 VARCHAR(50),
+    linea_direccion2 VARCHAR(50),
+    ciudad VARCHAR(50),
+    region VARCHAR(50),
+    pais VARCHAR(50),
+    codigo_postal VARCHAR(10),
+    codigo_empleado_rep_ventas INT,
+    limite_credito DECIMAL(15,2)
+);
+
+CREATE TABLE pago (
+    codigo_cliente INT,
+    forma_pago VARCHAR(40),
+    id_transaccion VARCHAR(50),
+    fecha_pago DATE,
+    total DECIMAL(15,2),
+    PRIMARY KEY (codigo_cliente, id_transaccion),
+    FOREIGN KEY (codigo_cliente) REFERENCES cliente(codigo_cliente)
+);
+
+
+CREATE TABLE pedido (
+    codigo_pedido INT PRIMARY KEY,
+    fecha_pedido DATE,
+    fecha_esperada DATE,
+    fecha_entrega DATE,
+    estado VARCHAR(15),
+    comentarios TEXT,
+    codigo_cliente INT,
+    FOREIGN KEY (codigo_cliente) REFERENCES cliente(codigo_cliente)
+);
+
+CREATE TABLE detalle_pedido (
+    codigo_pedido INT,
+    codigo_producto VARCHAR(15),
+    cantidad INT,
+    precio_unidad DECIMAL(15,2),
+    numero_linea SMALLINT,
+    PRIMARY KEY (codigo_pedido, codigo_producto),
+    FOREIGN KEY (codigo_pedido) REFERENCES pedido(codigo_pedido),
+    FOREIGN KEY (codigo_producto) REFERENCES producto(codigo_producto)
+);
+
+CREATE TABLE oficina (
+    codigo_oficina VARCHAR(10) PRIMARY KEY,
+    ciudad VARCHAR(30),
+    pais VARCHAR(50),
+    region VARCHAR(50),
+    codigo_postal VARCHAR(10),
+    telefono VARCHAR(20),
+    linea_direccion1 VARCHAR(50),
+    linea_direccion2 VARCHAR(50)
+);
+
+CREATE TABLE empleado (
+    codigo_empleado INT PRIMARY KEY,
+    nombre VARCHAR(50),
+    apellido1 VARCHAR(50),
+    apellido2 VARCHAR(50),
+    extension VARCHAR(10),
+    email VARCHAR(100),
+    codigo_oficina VARCHAR(10),
+    codigo_jefe INT,
+    puesto VARCHAR(50),
+    FOREIGN KEY (codigo_oficina) REFERENCES oficina(codigo_oficina),
+    FOREIGN KEY (codigo_jefe) REFERENCES empleado(codigo_empleado)
+);
+
+INSERT INTO gama_producto (gama, descripcion_texto, descripcion_html, imagen) VALUES
+('Gama1', 'Descripcion texto Gama 1', '<p>Descripcion HTML Gama 1</p>', 'imagen1.jpg'),
+('Gama2', 'Descripcion texto Gama 2', '<p>Descripcion HTML Gama 2</p>', 'imagen2.jpg');
+
+INSERT INTO producto (codigo_producto, nombre, gama, dimensiones, proveedor, descripcion, cantidad_en_stock, precio_venta, precio_proveedor) VALUES
+('P001', 'Producto 1', 'Gama1', '10x10', 'Proveedor 1', 'Descripcion del producto 1', 100, 15.50, 10.00),
+('P002', 'Producto 2', 'Gama2', '20x20', 'Proveedor 2', 'Descripcion del producto 2', 200, 25.50, 20.00);
+
+INSERT INTO cliente (codigo_cliente, nombre_cliente, nombre_contacto, apellido_contacto, telefono, fax, linea_direccion1, linea_direccion2, ciudad, region, pais, codigo_postal, codigo_empleado_rep_ventas, limite_credito) VALUES
+(1, 'Cliente 1', 'Contacto 1', 'Apellido 1', '123456789', '987654321', 'Direccion 1', 'Direccion 2', 'Ciudad 1', 'Region 1', 'Pais 1', 'CP1', 101, 1000.00),
+(2, 'Cliente 2', 'Contacto 2', 'Apellido 2', '123456780', '987654320', 'Direccion 3', 'Direccion 4', 'Ciudad 2', 'Region 2', 'Pais 2', 'CP2', 102, 2000.00);
+
+
+INSERT INTO pago (codigo_cliente, forma_pago, id_transaccion, fecha_pago, total) VALUES
+(1, 'Tarjeta', 'TXN001', '2024-06-01', 150.00),
+(2, 'Efectivo', 'TXN002', '2024-06-02', 200.00);
+
+
+INSERT INTO pedido (codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente) VALUES
+(1, '2024-06-01', '2024-06-05', '2024-06-04', 'Enviado', 'Ninguno', 1),
+(2, '2024-06-02', '2024-06-06', '2024-06-05', 'Pendiente', 'Urgente', 2);
+
+
+INSERT INTO detalle_pedido (codigo_pedido, codigo_producto, cantidad, precio_unidad, numero_linea) VALUES
+(1, 'P001', 2, 15.50, 1),
+(1, 'P002', 1, 25.50, 2),
+(2, 'P001', 1, 15.50, 1);
+
+
+INSERT INTO oficina (codigo_oficina, ciudad, pais, region, codigo_postal, telefono, linea_direccion1, linea_direccion2) VALUES
+('OF1', 'Ciudad 1', 'Pais 1', 'Region 1', 'CP1', '123456789', 'Direccion 1', 'Direccion 2'),
+('OF2', 'Ciudad 2', 'Pais 2', 'Region 2', 'CP2', '123456780', 'Direccion 3', 'Direccion 4');
+
+
+INSERT INTO empleado (codigo_empleado, nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto) VALUES
+(101, 'Empleado 1', 'Apellido 1', 'Apellido 2', 'EXT1', 'empleado1@example.com', 'OF1', NULL, 'Gerente'),
+(102, 'Empleado 2', 'Apellido 1', 'Apellido 2', 'EXT2', 'empleado2@example.com', 'OF2', 101, 'Asistente');
