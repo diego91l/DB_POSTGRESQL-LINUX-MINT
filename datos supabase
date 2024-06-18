@@ -11,7 +11,8 @@ sudo -i -u postgres
 psql
 
 
-create extension dblink
+create extension dblink;
+SELECT dblink_connect('conexion', 'host=aws-0-us-west-1.pooler.supabase.com port=6543 dbname=postgres user=postgres.irmlldunlycclugmnudv password=pJOENDIfbU4Qwm8f');
 
 
 -----------------------
