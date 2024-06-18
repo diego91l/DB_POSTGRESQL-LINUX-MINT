@@ -1,0 +1,29 @@
+
+admin
+
+credecciales projecto basemusica
+clave: pJOENDIfbU4Qwm8f
+
+-----------------------
+ingresar a postgres
+---------------------
+sudo -i -u postgres
+psql
+
+
+create extension dblink
+
+
+-----------------------
+insertar
+---------------------
+
+-- Elimina los datos actuales de la tabla local facultades si es necesario
+-- TRUNCATE TABLE facultades;
+
+-- Inserta datos desde la tabla remota en la tabla local
+INSERT INTO facultades (idFacultad, nombre)
+SELECT *
+FROM dblink('host=aws-0-us-west-1.pooler.supabase.com port=6543 dbname=postgres user=postgres.irmlldunlycclugmnudv password=6noTHAUySzPjDgiA', 'SELECT idFacultad, nombre FROM facultades') AS data(idFacultad INT, nombre VARCHAR(100));
+
+
